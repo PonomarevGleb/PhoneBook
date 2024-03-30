@@ -96,7 +96,7 @@ def change():
         pb.update(string)
         print("Фамилия была изменена. Не забудьте сохранить изменения.") 
     elif field_to_change == "телефоны":
-        new_name = input('Добавить или Заменить?: ')
+        new_name = input('Добавить, Заменить или Удалить?: ')
         if new_name == 'Добавить':
             new_name = input('Введите новый номер: ')
             pb[string][0].append(new_name)
@@ -108,11 +108,15 @@ def change():
             i = pb[string][0].index(field_to_change)
             pb[string][0][i] = new_name
             print(*pb[string][0])
-            print("Номер был изменен. Не забудьте сохранить изменения.") 
+            print("Номер был изменен. Не забудьте сохранить изменения.")
+        elif new_name == 'Удалить':
+            field_to_change = input('Введите номер который хотите удалить: ')
+            pb[string][0].remove(field_to_change)
+            print("Номер был удален. Не забудьте сохранить изменения.")
         else:
             print("Неправильный ввод")
     elif field_to_change == "почты":
-        new_name = input('Добавить или Заменить?: ')
+        new_name = input('Добавить, Заменить или Удалить?: ')
         if new_name == 'Добавить':
             new_name = input('Введите новую почту: ')
             pb[string][1].append(new_name)
@@ -125,6 +129,10 @@ def change():
             pb[string][1][i] = new_name
             print(*pb[string][1])
             print("Почта была изменена. Не забудьте сохранить изменения.") 
+        elif new_name == 'Удалить':
+            field_to_change = input('Введите почту которую хотите удалить: ')
+            pb[string][1].remove(field_to_change)
+            print("Почта была удален. Не забудьте сохранить изменения.")
         else:
             print("Неправильный ввод")
     else:
