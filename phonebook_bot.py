@@ -1,192 +1,317 @@
 import json
+import telebot
 
 
-
-def show_all():
-    global pb
-    for i in pb.keys():
-        print(i)
-        for j in pb[i]:
-            print (*j)
-        print()
-
-
-def save():
-    global pb
-    with open("phonebook.json", "w") as phonebook:
-        phonebook.write(json.dumps(pb, ensure_ascii=False))
-    print("Телефонная книга была сохранена")
-
-
-def get_book():
-    global pb
-    string = input("Укажите имя файла(вместе с путем, если он находится в другой директории), он будет подгружен вместе с текущим: ")
-    with open(string, "r") as phonebook:
-        pb.update(json.load(phonebook))
-    print("Телефонная книга была добавлена. Не забудьте сохранить изменения.") 
-
-
-def add():
-    global pb
-    string = input ("Введите Имя, Фамилию, номера телефонов и почтовые адреса через пробел: ")
-    string = string.split()
-    phones = [string[i] for i in range(2, len(string)) if string[i][-1].isdigit()]
-    mails = [string[i] for i in range(2, len(string)) if not string[i][-1].isdigit()]
-    string = {string[0]+" "+string[1]: [phones, mails]}
-    pb.update(string)
-    print("Запись была добавлена. Не забудьте сохранить изменения.") 
-
-
-def search():
-    global pb
-    string = input('Введите поле по которому будет производиться поиск (Имя, Фамилия, телефоны, почты): ')
-    if string == "Имя":
-        string = input('Введите Имя: ')
-        for i in pb.keys():
-            if string in i:
-                print(i, '\nтелефоны:', *pb[i][0], '\nпочтовые адреса:', *pb[i][1])
-    elif string == "Фамилия":
-        string = input('Введите Фамилию: ')
-        for i in pb.keys():
-            if string in i:
-                print(i, '\nтелефоны:', *pb[i][0], '\nпочтовые адреса:', *pb[i][1])
-    elif string == "телефоны":
-        string = input('Введите телефон: ')
-        for i in pb.keys():
-            if string in pb[i][0]:
-                print(i, '\nтелефоны:', *pb[i][0], '\nпочтовые адреса:', *pb[i][1])
-    elif string == "почты":
-        string = input('Введите почту: ')
-        for i in pb.keys():
-            if string in pb[i][1]:
-                print(i, '\nтелефоны:', *pb[i][0], '\nпочтовые адреса:', *pb[i][1])
-    else:
-        print("Поле введено неправильно")
-
-
-def delete():
-    global pb
-    string = input("Введиете Имя и Фамилию через пробел для удаления записи: ")
-    del pb[string]
-    print(string, ' удален. Не забудьте сохранить изменения.')
-
-
-def change():
-    global pb
-    string = input("Введиете Имя и Фамилию записи, в которую хотите внести изменения:\n")
-    for j in pb[string]:
-        print (*j)
-    field_to_change = input('Введите поле в котором будет производиться изменение (Имя, Фамилия, телефоны, почты): ')
-    if field_to_change == "Имя":
-        new_name = input('Введите новое Имя: ')
-        temp = pb[string]
-        del pb[string]
-        string = string.split()
-        new_name = new_name + " " + string[1]
-        string = {new_name: temp}
-        pb.update(string)
-        print("Имя было изменено. Не забудьте сохранить изменения.")             
-    elif field_to_change == "Фамилия":
-        new_name = input('Введите новую Фамилию: ')
-        temp = pb[string]
-        del pb[string]
-        string = string.split()
-        new_name = string[0] + " " + new_name
-        string = {new_name: temp}
-        pb.update(string)
-        print("Фамилия была изменена. Не забудьте сохранить изменения.") 
-    elif field_to_change == "телефоны":
-        new_name = input('Добавить, Заменить или Удалить?: ')
-        if new_name == 'Добавить':
-            new_name = input('Введите новый номер: ')
-            pb[string][0].append(new_name)
-            print(*pb[string][0])
-            print("Номер был добавлен. Не забудьте сохранить изменения.") 
-        elif new_name == 'Заменить':
-            field_to_change = input('Введите номер который хотите заменить: ')
-            new_name = input('Введите новый номер: ')
-            i = pb[string][0].index(field_to_change)
-            pb[string][0][i] = new_name
-            print(*pb[string][0])
-            print("Номер был изменен. Не забудьте сохранить изменения.")
-        elif new_name == 'Удалить':
-            field_to_change = input('Введите номер который хотите удалить: ')
-            pb[string][0].remove(field_to_change)
-            print("Номер был удален. Не забудьте сохранить изменения.")
-        else:
-            print("Неправильный ввод")
-    elif field_to_change == "почты":
-        new_name = input('Добавить, Заменить или Удалить?: ')
-        if new_name == 'Добавить':
-            new_name = input('Введите новую почту: ')
-            pb[string][1].append(new_name)
-            print(*pb[string][1])
-            print("Почта была добавлена. Не забудьте сохранить изменения.") 
-        elif new_name == 'Заменить':
-            field_to_change = input('Введите почту которую хотите заменить: ')
-            new_name = input('Введите новую почту: ')
-            i = pb[string][0].index(field_to_change)
-            pb[string][1][i] = new_name
-            print(*pb[string][1])
-            print("Почта была изменена. Не забудьте сохранить изменения.") 
-        elif new_name == 'Удалить':
-            field_to_change = input('Введите почту которую хотите удалить: ')
-            pb[string][1].remove(field_to_change)
-            print("Почта была удалена. Не забудьте сохранить изменения.")
-        else:
-            print("Неправильный ввод")
-    else:
-        print("Поле введено неправильно")
-
-
-def load():
-    global pb
-    with open("phonebook.json", "r") as phonebook:
-        pb = json.load(phonebook)
-    print("Телефонная книга была загружена")  
-
-
-
+API_TOKEN = '7179844878:AAHe5HE5tpSUAYnPGtm5GajujMJ1hmiz9qE'
+bot = telebot.TeleBot(API_TOKEN)
 
 pb = {}
 
-flag_cycle = True
-try:
-    print("Телефонная книга начала работу")
-    load()
-except:
-    s = input("Не смог загрузить файл телефонной книги. Создать пустой файл? \n y/n ")
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    global pb
+    bot.send_message(message.chat.id, "Телефонная книга начала работу")
+    try:     
+        with open("phonebook.json", "r") as phonebook:
+            pb = json.load(phonebook)
+        bot.send_message(message.chat.id, "Телефонная книга была загружена") 
+    except:
+        msg = bot.reply_to(message, "Не смог загрузить файл телефонной книги. Создать пустой файл? \n y/n ")
+        bot.register_next_step_handler(msg, cant_load)
+        
+def cant_load(message):
+    s = message.text
     if s != "y" and s != "Y":
-        flag_cycle = False
-        print("Завершаю работу. Хорошего дня")
+        bot.send_message(message.chat.id, "Завершаю работу. Хорошего дня")
     else:
         f = open("phonebook.json", "w")
         f.close()
 
 
-while flag_cycle:
-    command = input("Введите команду: ")
-    if command == "/save":
-        save()
-    elif command == "/load":
-        load()
-    elif command == "/add":
-        add()
-    elif command == "/all":
-        show_all()
-    elif command == "/import":
-        get_book()
-    elif command == "/search":
-        search()
-    elif command == "/delete":
-        delete()
-    elif command == "/change":
-        change()
-    elif command == "/help":
-        print("Команды: /save - сохранить \n /load - загрузить \n /add - добавить запись \n /all - показать все записи \n /import - импортировать файл с телефонной книгой \n /search - поиск \n /delete - удаление \n /change - изменение \n /stop - завершить работу")
-    elif command == "/stop":
-        print("Завершаю работу. Хорошего дня")
-        flag_cycle = False  
-    else:
-        print("Неопознаная команда. Попробуйте /help")
+@bot.message_handler(commands=['load'])
+def load(message):
+    global pb
+    with open("phonebook.json", "r") as phonebook:
+        pb = json.load(phonebook)
+    bot.send_message(message.chat.id, "Телефонная книга была загружена")  
 
+
+@bot.message_handler(commands=['all'])
+def show_all(message):
+    global pb
+    res = ""
+    for i in pb.keys():
+        res += f"{i}:"
+        for j in pb[i]:
+            for k in j:
+                res += f" {k}"
+            res += "  "   
+        res += "\n"
+    bot.send_message(message.chat.id, res)
+        
+
+@bot.message_handler(commands=['add'])
+def add(message):
+    msg = bot.reply_to(message, "Введите Имя, Фамилию, номера телефонов и почтовые адреса через пробел: ")
+    bot.register_next_step_handler(msg, add_info)
+
+def add_info(message):
+    global pb
+    input_string = message.text.split()
+    phones = [input_string[i] for i in range(2, len(input_string)) if input_string[i][-1].isdigit()]
+    mails = [input_string[i] for i in range(2, len(input_string)) if not input_string[i][-1].isdigit()]
+    input_string = {input_string[0]+" "+input_string[1]: [phones, mails]}
+    pb.update(input_string)
+    bot.send_message(message.chat.id, "Запись была добавлена. Не забудьте сохранить изменения.") 
+
+
+@bot.message_handler(commands=['save'])
+def save(message):
+    global pb
+    with open("phonebook.json", "w") as phonebook:
+        phonebook.write(json.dumps(pb, ensure_ascii=False))
+    bot.send_message(message.chat.id, "Телефонная книга была сохранена.")
+
+
+@bot.message_handler(commands=['help'])
+def help(message):
+    bot.send_message(message.chat.id, "Команды: \n /start - начать работу бота \n /save - сохранить \n /load - загрузить \n /add - добавить запись \n /all - показать все записи \n /search - поиск \n /delete - удаление \n /change - изменение \n")
+
+
+@bot.message_handler(commands=['search'])
+def search(message):
+    msg = bot.reply_to(message, 'Введите поле по которому будет производиться поиск (Имя, Фамилия, телефоны, почты): ')
+    bot.register_next_step_handler(msg, search_field)
+
+def search_field(message):
+    input_string = message.text
+    if input_string == "Имя":
+        msg = bot.reply_to(message, 'Введите Имя: ')
+        bot.register_next_step_handler(msg, search_field_name)  
+    elif input_string == "Фамилия":
+        msg = bot.reply_to(message, 'Введите Фамилию: ')
+        bot.register_next_step_handler(msg, search_field_surname)
+    elif input_string == "телефоны":
+        msg = bot.reply_to(message, 'Введите телефон: ')
+        bot.register_next_step_handler(msg, search_field_phone)
+    elif input_string == "почты":
+        msg = bot.reply_to(message, 'Введите почту: ')
+        bot.register_next_step_handler(msg, search_field_mail)
+    else:
+        bot.send_message(message.chat.id, "Поле введено неправильно")
+
+def search_field_name(message):
+    global pb
+    input_string = message.text
+    for i in pb.keys():
+        if input_string in i:
+            bot.send_message(message.chat.id, f"{i}\nтелефоны: {pb[i][0]}\nпочтовые адреса: {pb[i][1]}")
+
+def search_field_surname(message):
+    global pb
+    input_string = message.text
+    for i in pb.keys():
+        if input_string in i:
+            bot.send_message(message.chat.id, f"{i}\nтелефоны: {pb[i][0]}\nпочтовые адреса: {pb[i][1]}")
+
+def search_field_phone(message):
+    global pb
+    input_string = message.text
+    for i in pb.keys():
+        if input_string in pb[i][0]:
+            bot.send_message(message.chat.id, f"{i}\nтелефоны: {pb[i][0]}\nпочтовые адреса: {pb[i][1]}")
+
+def search_field_mail(message):
+    global pb
+    input_string = message.text
+    for i in pb.keys():
+        if input_string in pb[i][1]:
+            bot.send_message(message.chat.id, f"{i}\nтелефоны: {pb[i][0]}\nпочтовые адреса: {pb[i][1]}")
+
+
+@bot.message_handler(commands=['delete'])
+def delete(message):
+    msg = bot.reply_to(message, "Введиете Имя и Фамилию через пробел для удаления записи: ")
+    bot.register_next_step_handler(msg, delete_record)
+
+def delete_record(message):
+    global pb
+    input_string = message.text
+    del pb[input_string]
+    bot.send_message(message.chat.id, f"{input_string} удален. Не забудьте сохранить изменения.")
+
+
+@bot.message_handler(commands=['change'])
+def change(message):
+    msg = bot.reply_to(message, "Введиете Имя и Фамилию записи, в которую хотите внести изменения: ")
+    bot.register_next_step_handler(msg, change_second)
+
+def change_second(message):
+    global input_string
+    input_string = message.text
+    res = input_string
+    for j in pb[input_string]:
+        for k in j:
+            res += " " + k
+    bot.send_message(message.chat.id, res)
+    msg = bot.reply_to(message, 'Введите поле в котором будет производиться изменение (Имя, Фамилия, телефоны, почты): ')
+    bot.register_next_step_handler(msg, change_third)
+
+def change_third(message):
+    global input_string
+    global field_to_change
+    field_to_change = message.text
+    if field_to_change == "Имя":
+        msg = bot.reply_to(message, 'Введите новое Имя: ')
+        bot.register_next_step_handler(msg, change_field_name)  
+    elif field_to_change == "Фамилия":
+        msg = bot.reply_to(message, 'Введите новую Фамилию: ')
+        bot.register_next_step_handler(msg, change_field_surname)
+    elif field_to_change == "телефоны":
+        msg = bot.reply_to(message, 'Добавить, Заменить или Удалить?: ')
+        bot.register_next_step_handler(msg, change_field_phone)
+    elif field_to_change == "почты":
+        msg = bot.reply_to(message, 'Добавить, Заменить или Удалить?: ')
+        bot.register_next_step_handler(msg, change_field_mail)
+    else:
+        bot.send_message(message.chat.id, "Поле введено неправильно")
+    
+def change_field_name(message):
+    global pb
+    global input_string
+    global field_to_change
+    new_name = message.text
+    temp = pb[input_string]
+    del pb[input_string]
+    input_string = input_string.split()
+    new_name = new_name + " " + input_string[1]
+    input_string = {new_name: temp}
+    pb.update(input_string)
+    bot.send_message(message.chat.id, "Имя было изменено. Не забудьте сохранить изменения.")  
+
+def change_field_surname(message):
+    global pb
+    global input_string
+    global field_to_change
+    new_name = message.text
+    temp = pb[input_string]
+    del pb[input_string]
+    input_string = input_string.split()
+    new_name = input_string[0] + " " + new_name
+    input_string = {new_name: temp}
+    pb.update(input_string)
+    bot.send_message(message.chat.id, "Фамилия была изменена. Не забудьте сохранить изменения.") 
+
+def change_field_phone(message):
+    action_type = message.text
+    if action_type == 'Добавить':
+        msg = bot.reply_to(message, 'Введите новый номер: ')
+        bot.register_next_step_handler(msg, change_phone_add)
+    elif action_type == 'Заменить':
+        msg = bot.reply_to(message, 'Введите номер который хотите заменить: ')
+        bot.register_next_step_handler(msg, change_phone_replace)
+    elif action_type == 'Удалить':
+        msg = bot.reply_to(message, 'Введите номер который хотите удалить: ')
+        bot.register_next_step_handler(msg, change_phone_delete)
+    else:
+         bot.send_message(message.chat.id, "Неправильный ввод")
+
+def change_phone_add(message):
+    global pb
+    global input_string
+    new_name = message.text
+    pb[input_string][0].append(new_name)
+    res = ""
+    for i in pb[input_string][0]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Номер был добавлен. Не забудьте сохранить изменения.") 
+
+def change_phone_replace(message):
+    global field_to_change
+    field_to_change = message.text
+    msg = bot.reply_to(message, 'Введите новый номер: ')
+    bot.register_next_step_handler(msg, change_phone_replace_second)
+
+def change_phone_replace_second(message):
+    global input_string
+    global field_to_change
+    new_name = message.text
+    i = pb[input_string][0].index(field_to_change)
+    pb[input_string][0][i] = new_name
+    res = ""
+    for i in pb[input_string][0]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Номер был изменен. Не забудьте сохранить изменения.")
+
+def change_phone_delete(message):
+    global pb
+    global input_string
+    global field_to_change
+    field_to_change = message.text
+    pb[input_string][0].remove(field_to_change)
+    res = ""
+    for i in pb[input_string][0]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Номер был удален. Не забудьте сохранить изменения.")
+
+def change_field_mail(message):
+    action_type = message.text
+    if action_type == 'Добавить':
+        msg = bot.reply_to(message, 'Введите новую почту: ')
+        bot.register_next_step_handler(msg, change_mail_add)
+    elif action_type == 'Заменить':
+        msg = bot.reply_to(message, 'Введите почту которую хотите заменить: ')
+        bot.register_next_step_handler(msg, change_mail_replace)
+    elif action_type == 'Удалить':
+        msg = bot.reply_to(message, 'Введите почту которую хотите удалить: ')
+        bot.register_next_step_handler(msg, change_mail_delete)
+    else:
+         bot.send_message(message.chat.id, "Неправильный ввод")
+
+def change_mail_add(message):
+    global pb
+    global input_string
+    new_name = message.text
+    pb[input_string][1].append(new_name)
+    res = ""
+    for i in pb[input_string][1]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Почта была добавлена. Не забудьте сохранить изменения.") 
+
+def change_mail_replace(message):
+    global field_to_change
+    field_to_change = message.text
+    msg = bot.reply_to(message, 'Введите новeую почту: ')
+    bot.register_next_step_handler(msg, change_mail_replace_second)
+
+def change_mail_replace_second(message):
+    global input_string
+    global field_to_change
+    new_name = message.text
+    i = pb[input_string][1].index(field_to_change)
+    pb[input_string][1][i] = new_name
+    res = ""
+    for i in pb[input_string][1]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Почта была изменена. Не забудьте сохранить изменения.")
+
+def change_mail_delete(message):
+    global pb
+    global input_string
+    global field_to_change
+    field_to_change = message.text
+    pb[input_string][1].remove(field_to_change)
+    res = ""
+    for i in pb[input_string][1]:
+        res += i + " "
+    bot.send_message(message.chat.id, res)
+    bot.send_message(message.chat.id, "Почта была удалена. Не забудьте сохранить изменения.")
+
+
+bot.polling()
